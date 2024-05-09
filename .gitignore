@@ -1,0 +1,11 @@
+# Ignore a specific file
+/.prettierrc.json
+
+# Ignore all files with a certain extension
+.deps
+.states
+.deploys
+
+# Ignore all artefacts folders
+/contracts/*/artifacts
+/contracts/artifacts
