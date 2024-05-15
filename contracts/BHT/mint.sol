@@ -59,10 +59,9 @@ contract MyToken is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
 
     }
     function getTokenId( ) public view returns(NFT[] memory) { 
-        uint listNftCount = 0;
         NFT[]memory myArray = new NFT[](count[msg.sender]);
         for (uint i; i<count[msg.sender]; i++){ 
-            myArray[listNftCount] = NFT(
+            myArray[i] = NFT(
             NftId[msg.sender][i + 1],
             NftMinting[NftId[msg.sender][i + 1]].price,
             NftMinting[NftId[msg.sender][i + 1]].count,

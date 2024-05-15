@@ -1,93 +1,88 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.20;
 
-import "./IERC20.sol";
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract StakingRewards is Ownable{ 
-    IERC20 public immutable stakingToken;
-    IERC20 public immutable rewardsToken;
+contract Linking is Ownable {
 
-    uint public duration;
-    uint public finishAt;
-    uint public updatedAt;
-    uint public rewardRate;
-    uint public rewardPerTokenStored;
-    mapping(address=>uint) public userReward;
-    mapping(address=>uint) public rewards;
+    using SafeERC20 for IERC20;
 
-    uint public totalSupply;
-    mapping(address=>uint) public balanceOf;
+    uint public totalLockedNft;
+    address public immutable tokenAddress;
+    uint public dividnd;
+    uint public startTime;
+    uint public endTime;
 
 
-constructor(address _stakingToken , address _rewardToken) Ownable(msg.sender) { 
+    struct NftDetails{ 
+        uint TokenId;
+        address stakerAddress; 
+        address currentOwnerAddress; 
+        uint userWithdrwaToken;
+        uint withdrawMonth;
+        uint stakeTime;
+        uint endTime;
+        bool isActive;
+    }
+    mapping (address mintAddress => mapping (uint tokedId => NftDetails)) public NftSupply;
+    mapping (address => mapping (uint =>uint)) public rewardAmount;
 
-    stakingToken = IERC20(_stakingToken);
-    rewardsToken = IERC20(_rewardToken);
-}
-// modifier updateReward(address _account) { 
-//     rewardPerTokenStored = rewardPerToken();
-// }
+    constructor (address initialOwner, address _tokenAddress) Ownable(initialOwner) { 
+        tokenAddress= _tokenAddress;
+        // dividnd = _dividnd;
 
-    function setRewardDuration(uint _duration) external onlyOwner{ 
-
-        require(finishAt < block.timestamp , "reward duration not finished");
-        duration  =_duration;
     }
 
-    function min(uint a, uint b) internal pure returns (uint) {
-    return a < b ? a : b;
-}
-    function notifyRewardAmount(uint _amount) external{ 
-        if(block.timestamp >finishAt){ 
-            rewardRate = _amount/duration;
-        } else { 
-            uint remainingRewards = rewardRate *(finishAt-block.timestamp);
-            rewardRate = (remainingRewards + _amount) /duration;
-        }
-        require(rewardRate>0 , "reward rate = 0");
-        require(rewardRate*duration<= rewardsToken.balanceOf(address(this)),
-        "reward amount >balance"
-        );
+    // function timePeriod(uint _startTime, uint _endTime) public { 
+    //     startTime = block.timestamp;
+    //     endTime = 1815585444;
+    // }
 
-        finishAt = block.timestamp + duration;
-        updatedAt = block.timestamp;
-    }
-    
-    function stake(uint _amount) external{ 
-        require(_amount > 0,"amount = 0");
-        stakingToken.transferFrom(msg.sender, address(this), _amount);
-        balanceOf[msg.sender] += _amount;
-        totalSupply += _amount;
-    }
-    
-    function withdraw(uint _amount) external{ 
-        require(_amount>0,"amount= 0");
-        balanceOf[msg.sender]-= _amount;
-        totalSupply-=_amount;
-        stakingToken.transfer(msg.sender, _amount);
-    }
-
-    function rewardPerToken() public  view returns (uint){
-        if(totalSupply ==0){
-            return rewardPerToken();
-        } 
-        return  rewardPerTokenStored + (rewardRate * (min(block.timestamp, finishAt) - updatedAt) * 1e18 ) / totalSupply;
+    function stakeNft(address mintAddress, address _stakerAddress, uint tokenId ) public {
+        
+        // require(NftSupply[mintAddress][tokenId].stakerAddress == _stakerAddress,"You are not Owner");
+        // require(startTime < block.timestamp, "Time cannot be started");
+        // require(endTime > block.timestamp, "End time is not Correct");
+        // require(!NftSupply[mintAddress][tokenId].isActive,"NFT already staked");
+        NftSupply[mintAddress][tokenId] = NftDetails(tokenId, _stakerAddress, address(this), 0, 0, block.timestamp, block.timestamp+100 seconds, true);
+        rewardAmount[_stakerAddress][tokenId] = NftSupply[mintAddress][tokenId].stakeTime ;
+        startTime =  NftSupply[mintAddress][tokenId].stakeTime ;
+        totalLockedNft++;
+        ERC721(mintAddress).transferFrom(_stakerAddress, address(this), tokenId);
 
     }
-    function earned(address _account) external view returns (uint){ 
-        return (balanceOf[_account]*((rewardPerToken()-userReward[_account]))/1e18) +rewards[_account];
-    }
-    
-    function getReward() external{ 
-        uint reward = rewards[msg.sender];
-        if (reward>0){ 
-            rewards[msg.sender]=0; 
-            rewardsToken.transfer(msg.sender,reward);
-        }
-    }
-    
-    
 
+   function unStakeNft(address mintAddress, address _stakerAddress, uint tokenId) public{
+
+        require(NftSupply[mintAddress][tokenId].isActive , "Nft is not Staked in List");
+        require(NftSupply[mintAddress][tokenId].stakerAddress == _stakerAddress, "You are not the owner");
+        totalLockedNft--;
+        NftSupply[mintAddress][tokenId].isActive = false;
+        ERC721(mintAddress).transferFrom(address(this), _stakerAddress, tokenId);  
+   }
+
+    function checkReward(address mintAddress, uint tokenId) public view returns (uint reward,uint month){
+
+        month = (block.timestamp - (NftSupply[mintAddress][tokenId].stakeTime + (NftSupply[mintAddress][tokenId].withdrawMonth*1 minutes)))/ 1 minutes;
+        reward  = (10 wei * month)/100;
+        return(reward , month);
+    }
+    function claimReward (address mintAddress, address _stakerAddress, uint tokenId) public{
+        (uint reward, uint month) = checkReward(mintAddress , NftSupply[mintAddress][tokenId].TokenId);
+        NftSupply[mintAddress][tokenId].withdrawMonth += month;
+        NftSupply[mintAddress][tokenId].userWithdrwaToken += (month*reward);
+        IERC20(tokenAddress).safeTransferFrom(address(this),_stakerAddress,(reward*month));
+    }
+
+    function adminDepositToken(address TokenAddress, uint tokenDeposit) public onlyOwner{ 
+        IERC20(tokenAddress).safeTransferFrom(TokenAddress, address(this), tokenDeposit);
+   }
+//       function adminWithdrawToken(address adminAddress, uint tokenDeposit) public onlyOwner{ 
+//         IERC20(tokenAddress).safeTransferFrom( address(this), adminAddress, tokenDeposit);
+//    }
+ 
 }
