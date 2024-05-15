@@ -113,28 +113,28 @@ contract Minting is ERC721URIStorage, Ownable {
     * This could be used to refresh or update the timestamp associated with an NFT,
     * potentially for mechanisms that depend on the age or recency of minting.
     */
-    function update_TokenIdTime(uint _tokenId) external {
-        NFTMetadata[_tokenId].mintTime = block.timestamp;
-    }
-    // The following functions are overrides required by Solidity.
-    function _burn(uint256 tokenId)
-        internal
-        override
-    {
-        super._burn(tokenId);
-    }
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
-    }
-    function safeTransferFrom(address from, address to, uint256 tokenId) public virtual override {
-        updateTokenId(to,tokenId,from);
-        super.safeTransferFrom(from, to, tokenId);
-    }
+    // function update_TokenIdTime(uint _tokenId) external {
+    //     NFTMetadata[_tokenId].mintTime = block.timestamp;
+    // }
+    // // The following functions are overrides required by Solidity.
+    // function _burn(uint256 tokenId)
+    //     internal
+    //     override
+    // {
+    //     super._burn(tokenId);
+    // }
+    // function tokenURI(uint256 tokenId)
+    //     public
+    //     view
+    //     override
+    //     returns (string memory)
+    // {
+    //     return super.tokenURI(tokenId);
+    // }
+    // function safeTransferFrom(address from, address to, uint256 tokenId) public virtual override {
+    //     updateTokenId(to,tokenId,from);
+    //     super.safeTransferFrom(from, to, tokenId);
+    // }
     /**
     * @dev Retrieves all NFTs associated with a given collection ID.
     * @param collectionId The ID of the collection for which to retrieve NFTs.
