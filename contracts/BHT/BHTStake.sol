@@ -67,19 +67,19 @@ contract Linking is Ownable {
 
     function checkReward(address mintAddress, uint tokenId) public view returns (uint reward,uint month){
 
-        month = (block.timestamp - (NftSupply[mintAddress][tokenId].stakeTime + (NftSupply[mintAddress][tokenId].withdrawMonth*1 minutes)))/ 1 minutes;
-        reward  = (10 wei * month)/100;
+        month = (block.timestamp - (NftSupply[mintAddress][tokenId].stakeTime + (NftSupply[mintAddress][tokenId].withdrawMonth*60)))/ 60;
+        reward  = (1 * month)/60;
         return(reward , month);
     }
-    function claimReward (address mintAddress, address _stakerAddress, uint tokenId) public{
+    function claimReward (address mintAddress, address adminAddress, uint tokenId) public{
         (uint reward, uint month) = checkReward(mintAddress , NftSupply[mintAddress][tokenId].TokenId);
         NftSupply[mintAddress][tokenId].withdrawMonth += month;
         NftSupply[mintAddress][tokenId].userWithdrwaToken += (month*reward);
-        IERC20(tokenAddress).safeTransferFrom(address(this),_stakerAddress,(reward*month));
+        IERC20(tokenAddress).safeTransfer(adminAddress,(month*reward));
     }
 
-    function adminDepositToken(address TokenAddress, uint tokenDeposit) public onlyOwner{ 
-        IERC20(tokenAddress).safeTransferFrom(TokenAddress, address(this), tokenDeposit);
+    function adminDepositToken(address adminAddress, uint tokenDeposit) public onlyOwner{ 
+        IERC20(tokenAddress).safeTransferFrom(adminAddress, address(this), tokenDeposit);
    }
 //       function adminWithdrawToken(address adminAddress, uint tokenDeposit) public onlyOwner{ 
 //         IERC20(tokenAddress).safeTransferFrom( address(this), adminAddress, tokenDeposit);

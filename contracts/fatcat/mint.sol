@@ -19,6 +19,12 @@ contract MyToken is ERC721, ERC721URIStorage, Ownable {
     uint public silverfee = 2;
     uint public standardfee = 4;
 
+    address FatCats= 0x0e759AA7166AB3b2b81AbD6d9eD16ac83368F97e;
+    address FatLeopards= 0x12c40516c7bf32002FF0e3431082C9e28Ab76066;
+    address FatTigers= 0xFdD87A263ba929E14Dd0A2D879D9C66d5c8fF3ae;
+    address FatKittens= 0x93365AACe3db5407B0976C0a6C5F46B21BAd3923;
+
+
     uint public goldMintDuration = 5 minutes;
     uint public silverMintDuration = 1 minutes;
     uint public bronzeMintDuration = 1 minutes;
