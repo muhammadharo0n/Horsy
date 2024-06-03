@@ -58,7 +58,7 @@ contract Linking is Ownable {
 
    function unStakeNft(address mintAddress, address _stakerAddress, uint tokenId) public{
 
-        require(NftSupply[mintAddress][tokenId].isActive , "Nft is not Staked in List");
+        require(NftSupply [mintAddress][tokenId].isActive , "Nft is not Staked in List");
         require(NftSupply[mintAddress][tokenId].stakerAddress == _stakerAddress, "You are not the owner");
         totalLockedNft--;
         NftSupply[mintAddress][tokenId].isActive = false;
