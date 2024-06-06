@@ -16,6 +16,7 @@ contract Linking is Ownable {
     uint public dividnd;
     uint public startTime;
     uint public endTime;
+    uint256 public rewardRate = 100;
 
 
     struct NftDetails{ 
@@ -35,6 +36,7 @@ contract Linking is Ownable {
         tokenAddress= _tokenAddress;
         // dividnd = _dividnd;
 
+
     }
 
     // function timePeriod(uint _startTime, uint _endTime) public { 
@@ -53,7 +55,6 @@ contract Linking is Ownable {
         startTime =  NftSupply[mintAddress][tokenId].stakeTime ;
         totalLockedNft++;
         ERC721(mintAddress).transferFrom(_stakerAddress, address(this), tokenId);
-
     }
 
    function unStakeNft(address mintAddress, address _stakerAddress, uint tokenId) public{
@@ -67,8 +68,8 @@ contract Linking is Ownable {
 
     function checkReward(address mintAddress, uint tokenId) public view returns (uint reward,uint month){
 
-        month = (block.timestamp - (NftSupply[mintAddress][tokenId].stakeTime + (NftSupply[mintAddress][tokenId].withdrawMonth*60)))/ 60;
-        reward  = (1 * month)/60;
+        month = (block.timestamp - (NftSupply[mintAddress][tokenId].stakeTime + (NftSupply[mintAddress][tokenId].withdrawMonth*1 minutes)))/ 1 minutes;
+        reward  = (rewardRate*(tokenAddress * month))/1 minutes;
         return(reward , month);
     }
     function claimReward (address mintAddress, address adminAddress, uint tokenId) public{
