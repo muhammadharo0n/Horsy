@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable {
+contract MyToken is ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable {
     constructor(address initialOwner)
         ERC721("MyToken", "MTK")
         Ownable(initialOwner)
@@ -21,31 +21,66 @@ contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     uint public tokenId;
 
 
-    mapping(uint=>NFT) public Neo;
-    mapping(uint=>NFT) public Quantum;
-    mapping(uint=>NFT) public Sentement;
+    mapping(uint=>mapping(address=>NFT)) public Tier1;
+    mapping(uint=>mapping(address=>NFT)) public Tier2;
+    mapping(uint=>mapping(address=>NFT)) public Tier3;
+    mapping(uint=>mapping(address=>NFT)) public Tier4;
+    mapping(uint=>mapping(address=>NFT)) public Tier5;
 
-    function safeMint(uint price, string memory uri) public
+
+    function safeMint(uint price) public
     {
-     
+    string memory uri;
+    string memory Neoo;
+    string memory Quantumm;
+    string memory name;
         tokenId++;
     if(tokenId <= 5){ 
-        Neo[tokenId] = NFT(tokenId, price, uri);
-    } else if(tokenId <= 10){
-        Quantum[tokenId] = NFT(tokenId, price, uri);
-    } else if(tokenId <= 15){
-        Sentement[tokenId] = NFT(tokenId, price, uri);
-    }else { 
+        uri = Neoo;
+        Tier1[tokenId][msg.sender] = NFT(tokenId, price, uri);
+        
+    } else if(tokenId <= 9){
+        uri = Quantumm;
+        Tier2[tokenId][msg.sender] = NFT(tokenId, price, uri);
+        _burn(5);
+    } else if(tokenId <= 12){
+        uri = Neoo;
+        Tier3[tokenId][msg.sender] = NFT(tokenId, price, uri);
+    }
+      else if(tokenId <= 14){
+        uri = Quantumm;
+        Tier4[tokenId][msg.sender] = NFT(tokenId, price, uri);
+    }
+      else if(tokenId <= 15){
+        uri = Neoo;
+        Tier5[tokenId][msg.sender] = NFT(tokenId, price, uri);
+    }
+    else { 
         require(tokenId<16,'No more NFT to mint');  
     }
+    name = uri;
 
         _safeMint(msg.sender, tokenId);
-        _setTokenURI(tokenId, uri);
+        _setTokenURI(tokenId, name);
     }
 
-    // The following functions are overrides required by Solidity.
+    
+    // Override the transfer functions to prevent transfers
 
-    function _update(address to, uint256 tokenId, address auth)
+    function transferFrom(address from, address to, uint256 tokenID) public virtual override(ERC721, IERC721) {
+        revert("NFTs are non-transferable");
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenID) public virtual override(ERC721, IERC721) {
+        revert("NFTs are non-transferable");
+    }
+
+    function safeTransferFrom(address from, address to, uint256 tokenID, bytes memory _data) public virtual override(ERC721, IERC721) {
+        revert("NFTs are non-transferable");
+    }
+
+
+    function _update(address to, uint256 tokenID, address auth)
         internal
         override(ERC721, ERC721Enumerable)
         returns (address)
@@ -60,7 +95,7 @@ contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         super._increaseBalance(account, value);
     }
 
-    function tokenURI(uint256 tokenId)
+    function tokenURI(uint256 tokenID)
         public
         view
         override(ERC721, ERC721URIStorage)
@@ -68,6 +103,7 @@ contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     {
         return super.tokenURI(tokenId);
     }
+    
 
     function supportsInterface(bytes4 interfaceId)
         public

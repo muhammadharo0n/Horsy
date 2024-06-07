@@ -69,7 +69,7 @@ contract Linking is Ownable {
     function checkReward(address mintAddress, uint tokenId) public view returns (uint reward,uint month){
 
         month = (block.timestamp - (NftSupply[mintAddress][tokenId].stakeTime + (NftSupply[mintAddress][tokenId].withdrawMonth*1 minutes)))/ 1 minutes;
-        reward  = (rewardRate*(tokenAddress * month))/1 minutes;
+        reward  = (rewardRate* month)/1 minutes;
         return(reward , month);
     }
     function claimReward (address mintAddress, address adminAddress, uint tokenId) public{
