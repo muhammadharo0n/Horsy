@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MyToken is ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable {
+contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable {
     constructor(address initialOwner)
         ERC721("MyToken", "MTK")
         Ownable(initialOwner)
@@ -31,28 +31,23 @@ contract MyToken is ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable 
     function safeMint(uint price) public
     {
     string memory uri;
-    string memory Neoo;
-    string memory Quantumm;
     string memory name;
         tokenId++;
     if(tokenId <= 5){ 
-        uri = Neoo;
         Tier1[tokenId][msg.sender] = NFT(tokenId, price, uri);
         
     } else if(tokenId <= 9){
-        uri = Quantumm;
-        Tier2[tokenId][msg.sender] = NFT(tokenId, price, uri);
-        _burn(5);
+
+        Tier2[tokenId][msg.sender] = NFT(tokenId, price, uri);  
+         burn(1);    
+         
     } else if(tokenId <= 12){
-        uri = Neoo;
         Tier3[tokenId][msg.sender] = NFT(tokenId, price, uri);
     }
       else if(tokenId <= 14){
-        uri = Quantumm;
         Tier4[tokenId][msg.sender] = NFT(tokenId, price, uri);
     }
       else if(tokenId <= 15){
-        uri = Neoo;
         Tier5[tokenId][msg.sender] = NFT(tokenId, price, uri);
     }
     else { 
@@ -63,22 +58,17 @@ contract MyToken is ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable 
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, name);
     }
-
-    
     // Override the transfer functions to prevent transfers
 
-    function transferFrom(address from, address to, uint256 tokenID) public virtual override(ERC721, IERC721) {
-        revert("NFTs are non-transferable");
+
+
+    function safeTransferFrom(address from, address to, uint256 tokenID) public virtual override (ERC721, IERC721) {
+        revert("NFTs are non-transferable"); // Removed unnecessary semicolon
     }
 
-    function safeTransferFrom(address from, address to, uint256 tokenID) public virtual override(ERC721, IERC721) {
-        revert("NFTs are non-transferable");
-    }
 
-    function safeTransferFrom(address from, address to, uint256 tokenID, bytes memory _data) public virtual override(ERC721, IERC721) {
-        revert("NFTs are non-transferable");
-    }
 
+    // The following functions are overrides required by Solidity.
 
     function _update(address to, uint256 tokenID, address auth)
         internal
