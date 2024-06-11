@@ -31,15 +31,16 @@ contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     function safeMint(uint price) public
     {
     string memory uri;
-    string memory name;
         tokenId++;
+
+            require(tokenId <= 15, 'No more NFT to mint');
+
     if(tokenId <= 5){ 
         Tier1[tokenId][msg.sender] = NFT(tokenId, price, uri);
         
     } else if(tokenId <= 9){
 
         Tier2[tokenId][msg.sender] = NFT(tokenId, price, uri);  
-         burn(1);    
          
     } else if(tokenId <= 12){
         Tier3[tokenId][msg.sender] = NFT(tokenId, price, uri);
@@ -50,25 +51,12 @@ contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
       else if(tokenId <= 15){
         Tier5[tokenId][msg.sender] = NFT(tokenId, price, uri);
     }
-    else { 
-        require(tokenId<16,'No more NFT to mint');  
-    }
-    name = uri;
 
         _safeMint(msg.sender, tokenId);
-        _setTokenURI(tokenId, name);
-    }
-    // Override the transfer functions to prevent transfers
-
-
-
-    function safeTransferFrom(address from, address to, uint256 tokenID) public virtual override (ERC721, IERC721) {
-        revert("NFTs are non-transferable"); // Removed unnecessary semicolon
+        _setTokenURI(tokenId, uri);
     }
 
 
-
-    // The following functions are overrides required by Solidity.
 
     function _update(address to, uint256 tokenID, address auth)
         internal
