@@ -97,7 +97,7 @@ contract NFTMarketplace is Ownable {
         require(NftListing[contractAddress][tokenId].minted= true, "NFT not Listed");
         require(msg.value >= NftListing[contractAddress][tokenId].price, "Insufficient funds");
         ERC721(contractAddress).transferFrom(address(this), msg.sender, IndexListing[tokenId].tokenId);
-
+        
         payable(owner()).transfer(NftListing[contractAddress][tokenId].price);
         emit NftSold(tokenId, msg.sender, NftListing[contractAddress][tokenId].price, NftListing[contractAddress][tokenId].uri, NftListing[contractAddress][tokenId].minted);
     }

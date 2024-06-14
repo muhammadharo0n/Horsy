@@ -56,7 +56,9 @@ contract MyToken is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         _setTokenURI(tokenId, uri);
     }
 
-
+    function safeTransferFrom(address from, address to, uint256 tokenID) public virtual override (ERC721, IERC721) {
+    revert("NFTs are non-transferable");
+}
 
     function _update(address to, uint256 tokenID, address auth)
         internal
