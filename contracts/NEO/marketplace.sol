@@ -109,7 +109,11 @@ contract NFTMarketplace is Ownable {
         tokensToBurn [1] = 7;
         tokensToBurn [2] = 8;
         _burnToken(tokensToBurn);
+        }else if(tokenId ==14){ 
+        uint[] memory tokensToBurn = new uint [](3);
+        tokensToBurn [0] = 13;
         }
+        
         ERC721(contractAddress).transferFrom(address(this), msg.sender, IndexListing[tokenId].tokenId);
         payable(owner()).transfer(NftListing[contractAddress][tokenId].price);
         emit NftSold(tokenId, msg.sender, NftListing[contractAddress][tokenId].price, NftListing[contractAddress][tokenId].uri, NftListing[contractAddress][tokenId].minted);
