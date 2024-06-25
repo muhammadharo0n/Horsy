@@ -96,10 +96,38 @@ contract NFTMarketplace is Ownable {
         require(NftListing[contractAddress][tokenId].owner!= msg.sender, "Owner cannot buy this NFT");
         require(NftListing[contractAddress][tokenId].minted= true, "NFT not Listed");
         require(msg.value >= NftListing[contractAddress][tokenId].price, "Insufficient funds");
+ 
+        if(tokenId ==6){
+        uint[] memory tokensToBurn = new uint [](3);
+        tokensToBurn [0] = 1;
+        tokensToBurn [1] = 2;
+        tokensToBurn [2] = 3;
+        _burnToken(tokensToBurn);
+        }else if(tokenId ==10){ 
+        uint[] memory tokensToBurn = new uint [](3);
+        tokensToBurn [0] = 6;
+        tokensToBurn [1] = 7;
+        tokensToBurn [2] = 8;
+        _burnToken(tokensToBurn);
+        }
         ERC721(contractAddress).transferFrom(address(this), msg.sender, IndexListing[tokenId].tokenId);
-        
         payable(owner()).transfer(NftListing[contractAddress][tokenId].price);
         emit NftSold(tokenId, msg.sender, NftListing[contractAddress][tokenId].price, NftListing[contractAddress][tokenId].uri, NftListing[contractAddress][tokenId].minted);
+    }
+
+    function _burnToken(uint[] memory _tokenId) public {
+        
+        for(uint i = 0; i<_tokenId.length; i++){
+        uint tokenIds = _tokenId[i];
+        address contractAddress = IndexListing[tokenIds].mintContract; 
+        require(NftListing[contractAddress][tokenIds].minted, "Nft not minted");
+        NftListing[contractAddress][tokenIds].tokenId -= tokenIds;
+        NftListing[contractAddress][tokenIds].minted == false;
+        NftListing[contractAddress][tokenIds].price == 0;
+        NftListing[contractAddress][tokenIds].uri = "Burned";
+
+        }
+
     }
 
 }
