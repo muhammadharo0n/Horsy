@@ -97,19 +97,19 @@ contract NFTMarketplace is Ownable {
         require(NftListing[contractAddress][tokenId].minted= true, "NFT not Listed");
         require(msg.value >= NftListing[contractAddress][tokenId].price, "Insufficient funds");
  
-        if(tokenId ==6){
+        if(NftListing[contractAddress][tokenId].tokenId ==6){
         uint[] memory tokensToBurn = new uint [](3);
         tokensToBurn [0] = 1;
         tokensToBurn [1] = 2;
         tokensToBurn [2] = 3;
         _burnToken(tokensToBurn);
-        }else if(tokenId ==10){ 
+        }else if(NftListing[contractAddress][tokenId].tokenId ==10){ 
         uint[] memory tokensToBurn = new uint [](3);
         tokensToBurn [0] = 6;
         tokensToBurn [1] = 7;
         tokensToBurn [2] = 8;
         _burnToken(tokensToBurn);
-        }else if(tokenId ==14){ 
+        }else if(NftListing[contractAddress][tokenId].tokenId ==14){ 
         uint[] memory tokensToBurn = new uint [](3);
         tokensToBurn [0] = 13;
         }
@@ -125,9 +125,9 @@ contract NFTMarketplace is Ownable {
         uint tokenIds = _tokenId[i];
         address contractAddress = IndexListing[tokenIds].mintContract; 
         require(NftListing[contractAddress][tokenIds].minted, "Nft not minted");
-        NftListing[contractAddress][tokenIds].tokenId -= tokenIds;
-        NftListing[contractAddress][tokenIds].minted == false;
-        NftListing[contractAddress][tokenIds].price == 0;
+        IndexListing[tokenIds].tokenId -= tokenIds;
+        NftListing[contractAddress][tokenIds].minted = false;
+        NftListing[contractAddress][tokenIds].price = 0;
         NftListing[contractAddress][tokenIds].uri = "Burned";
 
         }
