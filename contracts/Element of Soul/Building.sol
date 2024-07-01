@@ -43,7 +43,7 @@ contract Building is ERC1155, Ownable {
         require(whitelisted[to], "You are not authorized!");
         require(to != address(0), "Please provide a valid address to mint Buildings!");
         uint256[] memory ids = new uint256[](tokenIds_Quantity);
-        for (uint256 i = 0; i < tokenIds_Quantity; i++) {
+        for (uint16 i = 0; i < tokenIds_Quantity; i++) {
             ids[i] = nextTokenId + i;
             nftId[msg.sender][batchCount[msg.sender] + 1] = nextTokenId;
         }
