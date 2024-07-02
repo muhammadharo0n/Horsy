@@ -13,6 +13,8 @@ contract Marketplace is Ownable{
     uint256 public _nextTokenId;
     uint public _nftStakeId;
     uint tokenAddress;
+    uint startTime;
+    uint endTime;
 
     constructor (address initialOwner) Ownable(initialOwner) { 
 
@@ -51,5 +53,17 @@ contract Marketplace is Ownable{
         _nftStakeId--;
         ERC721(contractAddress).transferFrom(msg.sender,address(this), _tokenId);
         stakingIndex[_nftStakeId] = stakingNftIndex(_tokenId, contractAddress);
+    }
+    function timePeriod( uint _startTime, uint _endTime) public { 
+        startTime = _startTime;
+        endTime = _endTime;
+    }
+
+    function checkReward (uint _tokenId, address userAddress) public  returns (uint reward, uint month) { 
+        
+    }
+
+    function getReward(uint _tokenId, address userAddress) public { 
+        require(stakeListing[msg.sender].staked = true,"There is no Nft to get Reward");
     }
 }

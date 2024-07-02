@@ -33,21 +33,9 @@ contract Marketplace is Ownable{
         uint tokenId;
         address mintContract;
     }
-    struct NftStaking{ 
-        uint tokenId;
-        uint startTime;
-        address stakedAddress;
-        bool staked;
-    }
-    struct stakingNftIndex{ 
-        uint tokenId;
-        address mintContract;
-    }
+
     mapping(address mintContractAddress => mapping (uint tokenId => NftListing) ) public tokenListing;
     mapping(uint => TokenAddress) public Index;
-    mapping(address  => NftStaking) public stakeListing;
-    mapping(uint => stakingNftIndex) public stakingIndex;
-
 
     function listTokens (uint _tokenId, uint _price, address _mintContract) public{ 
         _nextTokenId++;
@@ -65,18 +53,4 @@ contract Marketplace is Ownable{
         payable (owner()).transfer(msg.value);
 
         } 
-    function stakeNft( uint _tokenId, address contractAddress) public { 
-        
-        _nftStakeId++;
-        stakeListing[msg.sender] = NftStaking(_tokenId, block.timestamp, contractAddress);
-        ERC721(contractAddress).transferFrom(msg.sender,address(this), _tokenId);
-        stakingIndex[_nftStakeId] = stakingNftIndex(_tokenId, contractAddress);
-   
-    }
-    function unStake(uint _tokenId, address contractAddress) public { 
-        require(stakeListing[msg.sender].staked);
-        _nftStakeId--;
-        ERC721(contractAddress).transferFrom(msg.sender,address(this), _tokenId);
-        stakingIndex[_nftStakeId] = stakingNftIndex(_tokenId, contractAddress);
-    }
 }
