@@ -26,8 +26,10 @@ contract Marketplace is Ownable{
     struct NftStaking{ 
         uint tokenId;
         uint startTime;
+        uint withDrawMonth;
         address stakedAddress;
         bool staked;
+
     }
     struct stakingNftIndex{ 
         uint tokenId;
@@ -43,7 +45,7 @@ contract Marketplace is Ownable{
     function stakeNft( uint _tokenId, address contractAddress) public { 
         
         _nftStakeId++;
-        stakeListing[msg.sender] = NftStaking(_tokenId, block.timestamp, contractAddress, true);
+        stakeListing[msg.sender] = NftStaking(_tokenId, block.timestamp, 0, contractAddress, true);
         ERC721(contractAddress).transferFrom(msg.sender,address(this), _tokenId);
         stakingIndex[_nftStakeId] = stakingNftIndex(_tokenId, contractAddress);
    
@@ -59,8 +61,14 @@ contract Marketplace is Ownable{
         endTime = _endTime;
     }
 
-    function checkReward (uint _tokenId, address userAddress) public  returns (uint reward, uint month) { 
-        
+    function checkReward ( address userAddress) public view returns (uint reward, uint month) { 
+        if ((block.timestamp - endTime - ( stakeListing[userAddress].withDrawMonth *60))>= 60){
+            month = (block.timestamp - endTime - ( stakeListing[userAddress].withDrawMonth *60)) / 60; 
+            reward = month *5;
+         } 
+         else{ 
+            return(0,0);
+         }
     }
 
     function getReward(uint _tokenId, address userAddress) public { 

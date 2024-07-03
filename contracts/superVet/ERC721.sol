@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 // @title LandMinting
 // @author LandMinting Team
 // @notice This contract implements an ERC721 token with whitelisting and metadata storage functionalities.
-contract SuperVet is ERC721, ERC721URIStorage, Ownable {
+contract LandMinting is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;  // Use Counters library from OpenZeppelin.
     Counters.Counter private _itemsId;  // Private counter to track token IDs.
 
