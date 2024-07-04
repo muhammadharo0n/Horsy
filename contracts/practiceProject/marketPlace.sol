@@ -32,11 +32,13 @@ contract NFTMarketplace is Ownable {
     event ItemCreated(uint256 indexed itemId, address indexed creator, string uri, uint256 price);
     event ItemSold(uint256 indexed itemId, address indexed buyer, uint256 price);
 
-    function createItem(string memory uri, uint256 price) public onlyOwner {
+    function createItem(string memory uri, uint256 price, address _mintContract) public onlyOwner {
         _itemIds.increment();
         uint256 itemId = _itemIds.current();
 
         _items[itemId] = NFTItem(itemId, msg.sender, uri, price, false);
+        ERC721(_mintContract).approve(address(this),itemId);
+        ERC721(_mintContract).safeTransferFrom(msg.sender, address(this), itemId); 
 
         emit ItemCreated(itemId, msg.sender, uri, price);
     }
