@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 // @title LandMinting
 // @author LandMinting Team
 // @notice This contract implements an ERC721 token with whitelisting and metadata storage functionalities.
-contract LandMinting is ERC721, ERC721URIStorage, Ownable {
+contract NFTMINTING is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;  // Use Counters library from OpenZeppelin.
     Counters.Counter private _itemsId;  // Private counter to track token IDs.
 
@@ -53,7 +53,7 @@ contract LandMinting is ERC721, ERC721URIStorage, Ownable {
     * @dev Can only be called by whitelisted addresses.
     * @param uri The metadata URI of the token to be minted.*/
     function safeMint(string memory uri) public {
-        require(whitelisted[msg.sender], "You are not authorized for minting land!!");
+        require(whitelisted[msg.sender], "You are not authorized for minting NFTs!!");
         _itemsId.increment();  
         uint256 newItemId = _itemsId.current();  
         NftId[msg.sender][count[msg.sender] + 1] = newItemId;

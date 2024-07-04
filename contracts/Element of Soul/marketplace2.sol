@@ -555,7 +555,9 @@ contract NFTMarketplace is ERC1155Holder,ReentrancyGuard, Ownable{
         uint listedIndex = 0;
         for (uint i = 1; i <= nextLandListId.current() ; i++) {
             if (userLandListings[listCount[i].contractAddress][listCount[i].tokenId].listed) {
-                listedNFT[listedIndex] = ListedLandNftTokenId(userLandListings[listCount[i].contractAddress][listCount[i].tokenId],i,IConnected(listCount[i].contractAddress).getTokenUri(listCount[i].tokenId));
+                listedNFT[listedIndex] = ListedLandNftTokenId(
+                userLandListings[listCount[i].contractAddress][listCount[i].tokenId],i,
+                IConnected(listCount[i].contractAddress).getTokenUri(listCount[i].tokenId));
                 listedIndex++;
             }
         }

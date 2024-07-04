@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 /// @title KAV Project Main Utility Token
 /// @author KAV Team
 /// @notice Contarct has fixed supply of tokens which is preminted
-contract KAV is ERC20, ERC20Pausable, Ownable {
+contract SUPERVET is ERC20, ERC20Pausable, Ownable {
     /// @notice Constructor of contract
     /// @param initialOwner Address of owner who can pause and unpause the contract
     constructor(address initialOwner)
