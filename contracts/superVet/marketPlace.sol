@@ -84,10 +84,10 @@ contract NFTMarketplace is ReentrancyGuard, Ownable{
     }  
 
     function buyNft(uint256 listIndex, uint256 price) external nonReentrant {
-        address contractAddress = listCount[listIndex].contractAddress;
+        address Owner = userNftListings[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].owner;
         require(userNftListings[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].owner != msg.sender, "Owner Can't Buy Its Nfts");
         require(price >= userNftListings[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].price, "Not enough ether to cover asking price");
-        IERC20(tokenAddress).safeTransferFrom(msg.sender,userNftListings[contractAddress][listIndex].owner,price);
+        IERC20(tokenAddress).safeTransferFrom(msg.sender,Owner,price);
         ERC721(listCount[listIndex].contractAddress).transferFrom(address(this), msg.sender, listCount[listIndex].tokenId);
         IConnected(listCount[listIndex].contractAddress).updateTokenId(msg.sender,listCount[listIndex].tokenId,userNftListings[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].seller);
         userNftListings[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].listed = false;
