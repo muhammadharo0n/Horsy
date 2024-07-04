@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-// @title LandMinting
-// @author LandMinting Team
+// @title Minting
+// @author SuperVet Team
 // @notice This contract implements an ERC721 token with whitelisting and metadata storage functionalities.
 contract NFTMINTING is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;  // Use Counters library from OpenZeppelin.
@@ -32,7 +32,7 @@ contract NFTMINTING is ERC721, ERC721URIStorage, Ownable {
 
     // @dev Initializes the contract by setting a custom token name and symbol, and transferring ownership.
     // @param initialOwner The address to be set as the initial owner of the contract.
-    constructor(address initialOwner) ERC721("Lands", "Land") Ownable(initialOwner) {
+    constructor(address initialOwner) ERC721("SuperVet", "Svet") Ownable(initialOwner) {
     }
 
     /*@notice Adds an address to the whitelist.
