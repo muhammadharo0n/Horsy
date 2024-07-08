@@ -37,7 +37,6 @@ contract NFTMarketplace is Ownable {
         uint256 itemId = _itemIds.current();
 
         _items[itemId] = NFTItem(itemId, msg.sender, uri, price, false);
-        ERC721(_mintContract).approve(address(this),itemId);
         ERC721(_mintContract).safeTransferFrom(msg.sender, address(this), itemId); 
 
         emit ItemCreated(itemId, msg.sender, uri, price);

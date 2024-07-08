@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MITBuildings
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
@@ -18,6 +18,7 @@ contract Building is ERC1155, Ownable {
     // mapping(address => mapping(uint => id_To_nft)) public tokenDetail;  // Maps address and counter to individual NFT details.
     mapping(address => mapping(uint => BundleOfNfts)) public BundleOfNftDetail;  // Maps address and index to batch NFT details.
     mapping(address => mapping(uint => uint)) public nftId;
+
     /// @dev Structure to store details of a batch of NFTs.
     struct BundleOfNfts {
         address Artist;
@@ -25,12 +26,15 @@ contract Building is ERC1155, Ownable {
         uint[] amount;
         string uri;
     }
-    /**
+    BundleOfNfts bundle;
+
+    /**  
      * @dev Initializes the contract by setting a custom URI for all token types and transferring ownership.
      * @param initialOwner The address to be set as the initial owner of the contract.
      */
     constructor(address initialOwner) ERC1155("") Ownable(initialOwner) {
     }
+
     /**
      * @notice Mints a batch of new tokens with given URIs.
      * @dev Can only be called by whitelisted addresses.
@@ -47,7 +51,7 @@ contract Building is ERC1155, Ownable {
             ids[i] = nextTokenId + i;
             nftId[msg.sender][batchCount[msg.sender] + 1] = nextTokenId;
         }
-        _mintBatch(to, ids, amounts,"");
+        _mintBatch(to, ids, amounts, "");
         _setURI(uri);
         BundleOfNftDetail[to][batchCount[to] + 1] = BundleOfNfts(msg.sender, ids, amounts, uri);
         nextTokenId += tokenIds_Quantity;
@@ -71,6 +75,7 @@ contract Building is ERC1155, Ownable {
     function unwhitelist(address _authorized) public onlyOwner {
         whitelisted[_authorized] = false;
     }
+
     /**
      * @notice Retrieves all batch NFT details owned by a given address.
      * @param owner The address of the owner.
@@ -79,19 +84,55 @@ contract Building is ERC1155, Ownable {
     function getBatchNFTsDetail(address owner) public view returns (BundleOfNfts[] memory) {
         BundleOfNfts[] memory batchNFTs = new BundleOfNfts[](batchCount[owner]);
         for (uint256 i = 1; i <= batchCount[owner]; i++) {
-            
             batchNFTs[i - 1] = BundleOfNftDetail[owner][i];
         }
         return batchNFTs;
     }
 
+    /**
+     * @dev Transfers a token ID from one owner to another and updates internal tracking.
+     * @param _to The address to receive the token ID.
+     * @param _tokenId The token ID to be transferred.
+     * @param _seller The current owner of the token ID.
+     *
+     * This function updates the internal mapping of token IDs to reflect a change in ownership.
+     * It also adjusts the count of NFTs owned by both the seller and the buyer.
+     * Note: This function does not perform the actual transfer of tokens but is intended to be called
+     * in conjunction with a transfer function that handles ownership change.
+     */
+    function updateTokenId(address _to, uint _tokenId, address _seller) public {
+        BundleOfNfts[] memory myArray = getBatchNFTsDetail(_seller);
 
-     /*@notice Retrieves the URI of a specific token by its ID.
-     @param tokenId The ID of the token whose URI is to be retrieved.
-     @return The URI of the token.*/
-    function getTokenUri(uint tokenId) external view returns(string memory) {
-        return uri(tokenId);
+        for (uint i = 0; i < myArray.length; i++) {
+            nftId[_to][batchCount[_to] + 1] = _tokenId;
+            if (contains(myArray[i].id, _tokenId)) {
+                BundleOfNftDetail[_seller][i + 1] = BundleOfNftDetail[_seller][batchCount[_seller]];
+                batchCount[_seller]--;
+                break;
+            }
+        }
+        batchCount[_to]++;
     }
 
-}
+    /**
+     * @dev Checks if an array contains a specific value.
+     * @param array The array to search.
+     * @param value The value to find.
+     * @return A boolean indicating whether the value is found.
+     */
+    function contains(uint[] memory array, uint value) internal pure returns (bool) {
+        for (uint i = 0; i < array.length; i++) {
+            if (array[i] == value) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    /*@notice Retrieves the URI of a specific token by its ID.
+     @param tokenId The ID of the token whose URI is to be retrieved.
+     @return The URI of the token.*/
+    function getTokenUri(uint tokenId) external view returns (string memory) {
+        return uri(tokenId);
+    }
+}
