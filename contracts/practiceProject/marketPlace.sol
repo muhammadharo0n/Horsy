@@ -54,17 +54,4 @@ contract NFTMarketplace is Ownable {
 
         payable(item.creator).transfer(item.price);
     }
-
-    function getItem(uint256 itemId) public view returns (uint256 id, address creator, string memory uri, uint256 price, bool sold) {
-        NFTItem storage item = _items[itemId];
-        id = item.id;
-        creator = item.creator;
-        uri = item.uri;
-        price = item.price;
-        sold = item.sold;
-    }
-
-    function getItemsSold() public view returns (uint256) {
-        return _itemsSold.current();
-    }
 }
