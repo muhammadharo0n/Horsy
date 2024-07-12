@@ -21,37 +21,42 @@ contract NFTMarketplace is Ownable {
 
     struct NFTItem {
         uint256 id;
+        uint price;
+        uint256 count;
         address creator;
         string uri;
-        uint256 price;
         bool sold;
     }
+    struct Index{ 
+        uint tokenId;
+        address owner;
+    }
 
-    mapping(uint256 => NFTItem) private _items;
+    mapping(address => mapping (uint => NFTItem)) public nftListing;
+    mapping(uint =>Index) public nftIndex;
 
     event ItemCreated(uint256 indexed itemId, address indexed creator, string uri, uint256 price);
     event ItemSold(uint256 indexed itemId, address indexed buyer, uint256 price);
 
-    function createItem(string memory uri, uint256 price, address _mintContract) public onlyOwner {
+    function createItem(uint tokenId, string memory uri, uint256 price, address _mintContract) public onlyOwner {
         _itemIds.increment();
-        uint256 itemId = _itemIds.current();
+        nftListing[_mintContract][tokenId]= NFTItem(_itemIds.current(), price, _itemIds.current(),msg.sender, uri, true);
+        nftIndex[_itemIds.current()] = Index(_itemIds.current(), msg.sender);
+        // ERC721(_mintContract).safeTransferFrom(msg.sender, address(this), itemId); 
 
-        _items[itemId] = NFTItem(itemId, msg.sender, uri, price, false);
-        ERC721(_mintContract).safeTransferFrom(msg.sender, address(this), itemId); 
-
-        emit ItemCreated(itemId, msg.sender, uri, price);
+        emit ItemCreated(_itemIds.current(), msg.sender, uri, price);
     }
 
-    function buyItem(uint256 itemId) public payable {
-        NFTItem storage item = _items[itemId];
-        require(item.sold == false, "Item already sold");
-        require(msg.value >= item.price, "Insufficient funds");
+    // function buyItem(uint256 itemId) public payable {
+    //     NFTItem storage item = _items[itemId];
+    //     require(item.sold == false, "Item already sold");
+    //     require(msg.value >= item.price, "Insufficient funds");
 
-        item.sold = true;
-        _itemsSold.increment();
+    //     item.sold = true;
+    //     _itemsSold.increment();
 
-        emit ItemSold(itemId, msg.sender, item.price);
+    //     emit ItemSold(itemId, msg.sender, item.price);
 
-        payable(item.creator).transfer(item.price);
-    }
+    //     payable(item.creator).transfer(item.price);
+    // }
 }
