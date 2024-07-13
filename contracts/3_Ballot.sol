@@ -23,6 +23,7 @@ contract Minting is ERC721URIStorage, Ownable {
         uint artistFeePerAge; // A fee related to the artist, possibly a royalty or similar concept.
     }
     // Struct to encapsulate detailed information about an NFT, used for easy data retrieval.
+
     struct MyNft {
         uint256 tokenId; // Unique identifier for the NFT.
         uint256 mintTime; // Timestamp of the minting.
