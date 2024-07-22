@@ -88,7 +88,6 @@ contract Building is ERC1155, Ownable {
         }
         return batchNFTs;
     }
-
     /**
      * @dev Transfers a token ID from one owner to another and updates internal tracking.
      * @param _to The address to receive the token ID.
