@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 /// @title Building
 /// @author Buildings Team
 /// @notice This contract implements an ERC1155 token with whitelisting, minting, and batch minting functionalities.
+//
+
 contract Building is ERC1155, Ownable {
     uint public nextTokenId;  // Variable to keep track of the next token ID.
     mapping(address => mapping(uint => bool)) public isActive;  // Maps address and token ID to activation status.
