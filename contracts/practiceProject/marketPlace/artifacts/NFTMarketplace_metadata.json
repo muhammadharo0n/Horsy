@@ -822,9 +822,9 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/marketPlace/marketplace2.sol": "NFTMarketplace"
+			"contracts/practiceProject/marketPlace/marketplace2.sol": "NFTMarketplace"
 		},
-		"evmVersion": "cancun",
+		"evmVersion": "london",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -980,7 +980,7 @@
 				"dweb:/ipfs/QmVBEei6aTnvYNZp2CHYVNKyZS4q1KkjANfY39WVXZXVoT"
 			]
 		},
-		"contracts/marketPlace/marketplace2.sol": {
+		"contracts/practiceProject/marketPlace/marketplace2.sol": {
 			"keccak256": "0x74f2121b38d6b24b3b5fa5979d9577378e0d3b8bc788c3e9d0b05a4fdb49286a",
 			"license": "MIT",
 			"urls": [
