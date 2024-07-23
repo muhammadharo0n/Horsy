@@ -505,7 +505,7 @@ contract Marketplace is ReentrancyGuard , Ownable{
         uint sellerFeeCul = (_idToNFT[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].price * sellerFeePerAge) / 1000;
         uint256 artistAmount = (selectedUser.price *  NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].artistFeePerAge) / 100;
         uint256 sellerAmount = selectedUser.price - (artistAmount + buyerFeeCul + sellerFeeCul);
-        IERC20(tokenAddress).transfer(selectedUser.user, _price);
+        IERC20(tokenAddress).safeTransferFrom(msg.sender, owner, _price);
         // payable(NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].owner).transfer(sellerAmount);
         // payable(NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].artist).transfer(artistAmount);
         // payable (buyerFee).transfer(buyerFeeCul);
