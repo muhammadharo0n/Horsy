@@ -203,13 +203,13 @@ contract Marketplace is ReentrancyGuard , Ownable{
 
     function ListNft(address _mintContract,uint256 _price,uint256 _tokenId,address artist,uint artistFeePerAge) public nonReentrant {
         require(!_idToNFT[_mintContract][_tokenId].listed,"Already Listed In Marketplace!");
-
+        require(artist == msg.sender,"artist value not matched");
         require(_price >= 0, "Price Must Be At Least 0 Wei");
         _nftCount.increment();
-        _idToNFT[_mintContract][_tokenId] = NFT(_tokenId,msg.sender,address(this),_price,_nftCount.current(),block.timestamp,true,artist,artistFeePerAge);
+        _idToNFT[_mintContract][_tokenId] = NFT(_tokenId,msg.sender,msg.sender,_price,_nftCount.current(),block.timestamp,true,artist,artistFeePerAge);
         listCount[_nftCount.current()] = addressToken(_mintContract,_tokenId);
         ERC721(_mintContract).approve(address(this),_tokenId); 
-        ERC721(_mintContract).transferFrom(msg.sender, address(this), _tokenId); 
+        // ERC721(_mintContract).transferFrom(msg.sender, address(this), _tokenId); 
         Volume[totalVolume] = VolumeData(_price,block.timestamp,msg.sender);
         totalVolume++;
         emit NFTListed(_tokenId, msg.sender, address(this), _price);
@@ -292,7 +292,7 @@ contract Marketplace is ReentrancyGuard , Ownable{
     function buyNft(uint listIndex,uint256 price) public payable nonReentrant { 
         require(_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].seller != msg.sender, "An offer cannot buy this Seller !!!");
         require(price >= _idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].price , "Not enough ether to cover asking price !!!");
-        ERC721(listCount[listIndex].contractAddress).transferFrom(address(this), msg.sender, listCount[listIndex].tokenId);
+        ERC721(listCount[listIndex].contractAddress).transferFrom(_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].seller , msg.sender, listCount[listIndex].tokenId);
         IConnected(listCount[listIndex].contractAddress).updateTokenId(msg.sender,listCount[listIndex].tokenId,_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].seller);
         uint buyerFeeCul =  (_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].price * buyerFeePerAge) / 1000;
         uint sellerFeeCul = (_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].price * sellerFeePerAge) / 1000;
