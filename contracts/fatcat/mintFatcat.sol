@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.24;
 import "@openzeppelin/contracts@4.9.0/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts@4.9.0/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts@4.9.0/access/Ownable.sol";
 import "@openzeppelin/contracts@4.9.0/utils/Counters.sol";
+import "hardhat/console.sol";
+
 /// @title Marketplace  for the NFTS
 /// @author FatCat Team
 /// @notice Contarct is based on minting the Nfts
@@ -40,6 +42,9 @@ contract Minting is ERC721URIStorage, Ownable {
         uint artistFeePerAge; // Fee associated with the artist as per their age(?) or duration since minting.
         string uri; // URI for the NFT's metadata.
     }
+    struct OwnerAddress{ 
+        uint tokenId;
+    }
     //mapping(address  => mapping(uint  => nftAuction)) public NftAuction;  
     // Nested mapping to store which token IDs belong to which address, with a sequential index for enumeration.
     mapping(address => mapping(uint256 => uint256)) public TokenId;
@@ -54,6 +59,7 @@ contract Minting is ERC721URIStorage, Ownable {
     // Administrative address, likely used for contract management or privileged operations.
     address public adminAddress;
     // Event emitted when an NFT is successfully minted, including details like tokenId, minter, and mint time.
+    mapping(address=>OwnerAddress) public getOwner;
     event SafeMinting(uint256 tokenId, address Minter, uint MintingTime);
     // Constructor setting the initial admin address and initializing the ERC721 token with a name and symbol.
     constructor(address _adminAddress,string memory _collectionName,string memory _collectionSymbol, string memory _Network, address _marketplaceAddress) ERC721("FATCAT", "CAT") {
@@ -84,6 +90,7 @@ contract Minting is ERC721URIStorage, Ownable {
         Auction(marketplaceAddress).AuctionOfferList(address(this),_tokenIdCounter.current(),0,msg.sender,artistFeePerAge);
         NFTMetadata[_tokenIdCounter.current()] = NFT(block.timestamp,artist,artistFeePerAge);
         tokenIdByCollection[collectionId].tokenIds.push(_tokenIdCounter.current());
+        getOwner[msg.sender]= OwnerAddress(_tokenIdCounter.current());
         emit SafeMinting(_tokenIdCounter.current(),msg.sender,block.timestamp);
     }
     /**
@@ -102,6 +109,14 @@ contract Minting is ERC721URIStorage, Ownable {
         }
         return myArray;
     }
+
+    function getTokenId_W_R_T_A(address to) public view returns (OwnerAddress[] memory) {
+        OwnerAddress[] memory myArray = new OwnerAddress[](count[to]);
+        for (uint256 i = 0; i < count[to]; i++) {
+            myArray[i] = OwnerAddress(TokenId[to][i + 1]);
+        }
+        return myArray;
+    }
     /**
     * @dev Transfers a token ID from one owner to another and updates internal tracking.
     * @param _to The address to receive the token ID.
@@ -113,16 +128,25 @@ contract Minting is ERC721URIStorage, Ownable {
     * Note: This function does not perform the actual transfer of tokens but is intended to be called
     * in conjunction with a transfer function that handles ownership change.
     */
-    function updateTokenId(address _to,uint _tokenId,address _seller) public {
+    function updateTokenId(address _to,uint _tokenId,address _seller) external returns ( string memory){
+                                console.log("INSIDE LOOP", _to);
+                                                        console.log("INSIDE LOOP",_tokenId);
+
+                        console.log("INSIDE LOOP",_seller);
+
+
         TokenId[_to][count[_to] + 1] = _tokenId;
         MyNft[] memory myArray =  getTokenId(_seller);
         for(uint i=0 ; i < myArray.length ; i++){
             if(myArray[i].tokenId == _tokenId){
                 TokenId[_seller][i+1] = TokenId[_seller][count[_seller]];
                 count[_seller]--;
+                        console.log("INSIDE LOOP");
             }
         }
         count[_to]++;
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        return("it is working >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     }
     /**
     * @dev Updates the mint time of a specific token ID to the current block timestamp.
@@ -149,11 +173,11 @@ contract Minting is ERC721URIStorage, Ownable {
     {
         return super.tokenURI(tokenId);
     }
-    function safeTransferFrom(address from, address to, uint256 tokenId) public virtual override   {
-        updateTokenId(to,tokenId,from);
-        super.safeTransferFrom(from, to, tokenId);
-        userTransferRecievedCount[to]++;
-    }
+    // function safe_Transfer_From(address from, address to, uint256 tokenId) public {
+    //     updateTokenId(to,tokenId,from);
+    //     super.safeTransferFrom(from, to, tokenId);
+    //     userTransferRecievedCount[to]++;
+    // }
     /**
     * @dev Retrieves all NFTs associated with a given collection ID.
     * @param collectionId The ID of the collection for which to retrieve NFTs.
@@ -162,6 +186,7 @@ contract Minting is ERC721URIStorage, Ownable {
     * constructing an array of MyNft structs that includes detailed information about each NFT,
     * such as token ID, mint time, the contract address, the minting artist, artist fee, and the token's metadata URI.
     */
+
     function getTokenIdsByCollection(string memory collectionId)
         public
         view

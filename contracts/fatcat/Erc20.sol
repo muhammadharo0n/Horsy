@@ -11,7 +11,7 @@ contract MyToken is ERC20, Ownable {
         Ownable(initialOwner)
     {}
 
-    function mint() public onlyOwner {
+    function mint() public {
         _mint(msg.sender, 1000 *1e18);
     }
 }

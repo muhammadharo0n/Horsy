@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -24,6 +24,7 @@ interface IConnected {
     function update_TokenIdTime(uint _tokenId) external;
     function getTokenId(address _to) external view returns(MyNft[] memory);
     function getTokenUri(uint _tokenId) external view returns(string memory);
+    function ownerOf(uint256 tokenId) external  view returns (address); 
 
 }
 /// @title Marketplace  for the NFTS
@@ -215,6 +216,7 @@ contract Marketplace is ReentrancyGuard , Ownable{
         emit NFTListed(_tokenId, msg.sender, address(this), _price);
     }
 
+
     function Commission_W_R_T(uint startTime,uint EndTime) public view returns(uint volume){
         uint TotalCommission;
         for (uint increment=0; increment < commissionCount; increment++) 
@@ -312,6 +314,7 @@ contract Marketplace is ReentrancyGuard , Ownable{
         _idToNFT[listCount[_nftCount.current()].contractAddress][listCount[_nftCount.current()].tokenId].count = listIndex;
         listCount[listIndex] = listCount[_nftCount.current()];
         _nftCount.decrement();
+        nftAuctionCount.decrement();
         userBuyRecord[msg.sender]++;
         userSoldRecord[_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].seller]++;
         emit Fee(_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].artist,artistFee);
@@ -494,6 +497,7 @@ contract Marketplace is ReentrancyGuard , Ownable{
     * 6. Updates the token ownership and timestamp in the connected NFT contract, if applicable.
     * 7. Marks the auction as inactive and cleans up the auction and user list mappings.
     */
+   
     function ClaimNFT(uint _auctionListCount, uint _price) external {
         require(SelectedUser[_auctionListCount] != 0 ,"Please wait...");
         userDetail memory selectedUser;
@@ -520,16 +524,17 @@ contract Marketplace is ReentrancyGuard , Ownable{
         ERC721(auctionListCount[_auctionListCount].contractAddress).transferFrom(owner, msg.sender, auctionListCount[_auctionListCount].tokenId);
         emit Claim(auctionListCount[_auctionListCount].tokenId,msg.sender,block.timestamp);
         IConnected(auctionListCount[_auctionListCount].contractAddress).updateTokenId(msg.sender,auctionListCount[_auctionListCount].tokenId,NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].owner);
-        NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].isActive = false;
+        NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].isActive = true;
         IConnected(auctionListCount[_auctionListCount].contractAddress).update_TokenIdTime(auctionListCount[_auctionListCount].tokenId);
-        auctionListCount[_auctionListCount] = auctionListCount[nftAuctionCount.current()];       
-        userBidsCount[_auctionListCount] = userBidsCount[nftAuctionCount.current()];
-        delete SelectedUser[_auctionListCount];
-        delete auctionListCount[nftAuctionCount.current()];
-        delete userBidsCount[nftAuctionCount.current()];
-        nftAuctionCount.decrement();
+        // auctionListCount[_auctionListCount] = auctionListCount[nftAuctionCount.current()];       
+        // userBidsCount[_auctionListCount] = userBidsCount[nftAuctionCount.current()];
+        // delete SelectedUser[_auctionListCount];
+        // delete auctionListCount[nftAuctionCount.current()];
+        // delete userBidsCount[nftAuctionCount.current()];
+        // nftAuctionCount.decrement();
        
     }
+
     // ============ selectUser FUNCTIONS ============
     /*
         @dev cancelBid cancel the bid of user 
@@ -559,6 +564,8 @@ contract Marketplace is ReentrancyGuard , Ownable{
 
         address contractAddress = auctionListCount[_auctionListCount].contractAddress;
         uint tokenId = auctionListCount[_auctionListCount].tokenId;
+        address owner = ERC721(contractAddress).ownerOf(tokenId);        
+        NftAuction[contractAddress][tokenId].owner = owner; 
         require(NftAuction[contractAddress][tokenId].owner == msg.sender,"You Are Unable to Select the User!!!");
         SelectedUser[_auctionListCount] = bidCount;
 
