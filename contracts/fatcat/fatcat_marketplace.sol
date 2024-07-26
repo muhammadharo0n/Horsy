@@ -530,8 +530,9 @@ contract Marketplace is ReentrancyGuard , Ownable{
         // userBidsCount[_auctionListCount] = userBidsCount[nftAuctionCount.current()];
         // delete SelectedUser[_auctionListCount];
         // delete auctionListCount[nftAuctionCount.current()];
-        // delete userBidsCount[nftAuctionCount.current()];
+         delete userBidsCount[nftAuctionCount.current()];
         // nftAuctionCount.decrement();
+        _nftCount.decrement();
        
     }
 
