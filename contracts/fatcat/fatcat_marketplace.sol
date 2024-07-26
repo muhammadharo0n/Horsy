@@ -314,7 +314,6 @@ contract Marketplace is ReentrancyGuard , Ownable{
         _idToNFT[listCount[_nftCount.current()].contractAddress][listCount[_nftCount.current()].tokenId].count = listIndex;
         listCount[listIndex] = listCount[_nftCount.current()];
         _nftCount.decrement();
-        nftAuctionCount.decrement();
         userBuyRecord[msg.sender]++;
         userSoldRecord[_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].seller]++;
         emit Fee(_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].artist,artistFee);
@@ -530,7 +529,9 @@ contract Marketplace is ReentrancyGuard , Ownable{
         // userBidsCount[_auctionListCount] = userBidsCount[nftAuctionCount.current()];
         // delete SelectedUser[_auctionListCount];
         // delete auctionListCount[nftAuctionCount.current()];
-         delete userBidsCount[nftAuctionCount.current()];
+        nftAuctionCount.decrement();
+        delete userBidsCount[nftAuctionCount.current()];
+        NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].tokenId++;
         // nftAuctionCount.decrement();
         _nftCount.decrement();
        
