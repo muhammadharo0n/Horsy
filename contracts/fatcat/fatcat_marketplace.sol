@@ -103,7 +103,6 @@ contract Marketplace is ReentrancyGuard , Ownable{
         uint listTime;          // Timestamp when the NFT was listed for auction.
         address marketplaceAddress; // Address of the marketpalce       
         bool isActive;          // Indicates if the auction is currently active.
-    
     }
 
     // Stores details about a user's bid in an auction, including the bid amount and time.
@@ -403,6 +402,13 @@ contract Marketplace is ReentrancyGuard , Ownable{
         userBidsCount[nftAuctionCount.current()] = 0; 
     }
 
+    function auctionOfferListAgain(uint _tokenId) public { 
+        NftAuction[auctionListCount[_tokenId].contractAddress][auctionListCount[_tokenId].tokenId].tokenId;
+        NftAuction[auctionListCount[_tokenId].contractAddress][auctionListCount[_tokenId].tokenId].owner = msg.sender;
+        NftAuction[auctionListCount[_tokenId].contractAddress][auctionListCount[_tokenId].tokenId].minimumBid = 0;
+        NftAuction[auctionListCount[_tokenId].contractAddress][auctionListCount[_tokenId].tokenId].artistFeePerAge;
+    }
+
     /**
     * @dev Allows users to place bids on NFTs that are listed for auction.
     *
@@ -507,7 +513,7 @@ contract Marketplace is ReentrancyGuard , Ownable{
         uint buyerFeeCul =  (_idToNFT[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].price * buyerFeePerAge) / 1000;
         uint sellerFeeCul = (_idToNFT[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].price * sellerFeePerAge) / 1000;
         uint256 artistAmount = (selectedUser.price *  NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].artistFeePerAge) / 100;
-        uint256 sellerAmount = selectedUser.price - (artistAmount + buyerFeeCul + sellerFeeCul);
+        // uint256 sellerAmount = selectedUser.price - (artistAmount + buyerFeeCul + sellerFeeCul);
         IERC20(tokenAddress).safeTransferFrom(msg.sender, owner, _price);
         // payable(NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].owner).transfer(sellerAmount);
         // payable(NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].artist).transfer(artistAmount);
@@ -527,13 +533,13 @@ contract Marketplace is ReentrancyGuard , Ownable{
         IConnected(auctionListCount[_auctionListCount].contractAddress).update_TokenIdTime(auctionListCount[_auctionListCount].tokenId);
         // auctionListCount[_auctionListCount] = auctionListCount[nftAuctionCount.current()];       
         // userBidsCount[_auctionListCount] = userBidsCount[nftAuctionCount.current()];
-        // delete SelectedUser[_auctionListCount];
+        delete SelectedUser[_auctionListCount];
         // delete auctionListCount[nftAuctionCount.current()];
-        nftAuctionCount.decrement();
         delete userBidsCount[nftAuctionCount.current()];
-        NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].tokenId++;
-        // nftAuctionCount.decrement();
         _nftCount.decrement();
+        // nftAuctionCount.decrement();
+        auctionOfferListAgain(NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].tokenId);
+
        
     }
 
@@ -566,12 +572,25 @@ contract Marketplace is ReentrancyGuard , Ownable{
 
         address contractAddress = auctionListCount[_auctionListCount].contractAddress;
         uint tokenId = auctionListCount[_auctionListCount].tokenId;
-        address owner = ERC721(contractAddress).ownerOf(tokenId);        
+        address owner = ERC721(contractAddress).ownerOf(tokenId);
         NftAuction[contractAddress][tokenId].owner = owner; 
-        require(NftAuction[contractAddress][tokenId].owner == msg.sender,"You Are Unable to Select the User!!!");
+        require(owner == msg.sender,"You Are Unable to Select the User!!!");
         SelectedUser[_auctionListCount] = bidCount;
 
     }
+    
+    
+    
+    // function selectUser(uint _auctionListCount,uint bidCount) public {
+
+    //     address contractAddress = auctionListCount[_auctionListCount].contractAddress;
+    //     uint tokenId = auctionListCount[_auctionListCount].tokenId;
+    //     address owner = ERC721(contractAddress).ownerOf(tokenId);        
+    //     NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].selectedUser = owner; 
+    //     require(NftAuction[contractAddress][tokenId].selectedUser == msg.sender,"You Are Unable to Select the User!!!");
+    //     SelectedUser[_auctionListCount] = bidCount;
+
+    // }
     /**
     * @dev Retrieves the bidding history for a specific NFT listed in the marketplace.
     *

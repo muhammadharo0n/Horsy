@@ -245,3 +245,4 @@ contract Minting is ERC721URIStorage, Ownable {
         return (collectionName,collectionSymbol,Network);
     }
 }
+
