@@ -81,7 +81,6 @@ contract Minting is ERC721URIStorage, Ownable {
     * Emits a SafeMinting event upon successful minting.
     */
     function safeMint(string memory uri,address artist,uint artistFeePerAge,string memory collectionId) public {
-        require(artist == msg.sender,"artist value not matched");
         _tokenIdCounter.increment();
         TokenId[msg.sender][count[msg.sender] + 1] = _tokenIdCounter.current();
         _safeMint(msg.sender, _tokenIdCounter.current());

@@ -203,7 +203,7 @@ contract Marketplace is ReentrancyGuard , Ownable{
 
     function ListNft(address _mintContract,uint256 _price,uint256 _tokenId,address artist,uint artistFeePerAge) public nonReentrant {
         require(!_idToNFT[_mintContract][_tokenId].listed,"Already Listed In Marketplace!");
-        require(artist == msg.sender,"artist value not matched");
+        // require(_idToNFT[_mintContract][_tokenId].owner == msg.sender,"artist value not matched");
         require(_price >= 0, "Price Must Be At Least 0 Wei");
         _nftCount.increment();
         _idToNFT[_mintContract][_tokenId] = NFT(_tokenId,msg.sender,msg.sender,_price,_nftCount.current(),block.timestamp,true,artist,artistFeePerAge);
@@ -408,6 +408,10 @@ contract Marketplace is ReentrancyGuard , Ownable{
         NftAuction[auctionListCount[_tokenId].contractAddress][auctionListCount[_tokenId].tokenId].minimumBid = 0;
         NftAuction[auctionListCount[_tokenId].contractAddress][auctionListCount[_tokenId].tokenId].artistFeePerAge;
         if(_idToNFT[listCount[_tokenId].contractAddress][listCount[_tokenId].tokenId].listed){
+            _idToNFT[listCount[_tokenId].contractAddress][listCount[_tokenId].tokenId].listed=false;
+            IConnected(listCount[_tokenId].contractAddress).update_TokenIdTime(listCount[_tokenId].tokenId);
+            _idToNFT[listCount[_nftCount.current()].contractAddress][listCount[_nftCount.current()].tokenId].count = _tokenId;
+            listCount[_tokenId] = listCount[_nftCount.current()];
             _nftCount.decrement();
             }
     }
