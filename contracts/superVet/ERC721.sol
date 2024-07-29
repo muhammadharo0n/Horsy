@@ -17,8 +17,9 @@ contract NFTMINTING is ERC721, ERC721URIStorage, Ownable {
 
     // Structure to store NFT information.
     struct NFT { 
-        uint256 tokenId;    
+        uint256 tokenId;   
         uint256 count;
+        string name;
         string uri;
         uint mintTime;        
         bool minted;
@@ -52,12 +53,12 @@ contract NFTMINTING is ERC721, ERC721URIStorage, Ownable {
     /*@notice Mints a new token with a given URI.
     * @dev Can only be called by whitelisted addresses.
     * @param uri The metadata URI of the token to be minted.*/
-    function safeMint(string memory uri) public {
+    function safeMint(string memory name, string memory uri) public {
         require(whitelisted[msg.sender], "You are not authorized for minting NFTs!!");
         _itemsId.increment();  
         uint256 newItemId = _itemsId.current();  
         NftId[msg.sender][count[msg.sender] + 1] = newItemId;
-        NftMinting[newItemId] = NFT(newItemId, count[msg.sender] + 1, uri, block.timestamp, true);
+        NftMinting[newItemId] = NFT(newItemId, count[msg.sender] + 1, uri, name, block.timestamp, true);
         _safeMint(msg.sender, newItemId);  
         _setTokenURI(newItemId, uri); 
         count[msg.sender]++; 
