@@ -121,7 +121,6 @@ contract Minting is ERC721URIStorage, Ownable {
     * @param _to The address to receive the token ID.
     * @param _tokenId The token ID to be transferred.
     * @param _seller The current owner of the token ID.
-    *
     * This function updates the internal mapping of token IDs to reflect a change in ownership.
     * It also adjusts the count of NFTs owned by both the seller and the buyer.
     * Note: This function does not perform the actual transfer of tokens but is intended to be called

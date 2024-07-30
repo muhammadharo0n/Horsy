@@ -311,6 +311,7 @@ contract Marketplace is ReentrancyGuard , Ownable{
         _idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].listed=false;
         IConnected(listCount[listIndex].contractAddress).update_TokenIdTime(listCount[listIndex].tokenId);
         _idToNFT[listCount[_nftCount.current()].contractAddress][listCount[_nftCount.current()].tokenId].count = listIndex;
+        NftAuction[auctionListCount[listIndex].contractAddress][auctionListCount[listIndex].tokenId].owner = msg.sender;
         listCount[listIndex] = listCount[_nftCount.current()];
         _nftCount.decrement();
         userBuyRecord[msg.sender]++;
