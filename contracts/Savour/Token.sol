@@ -36,10 +36,10 @@ contract TimeVillageToken is ERC20, ERC20Burnable, Pausable, Ownable,ReentrancyG
     enum currency{USDT, BNB}
 
 
-    constructor(address ownerAddress, address _UsdcContract) ERC20("Time Village Token", "TVT") Ownable(ownerAddress){
+    constructor(address ownerAddress) ERC20("Time Village Token", "TVT") Ownable(ownerAddress){
     _mint(msg.sender, 2500000000 * 10 ** decimals());
     // priceFeed = AggregatorV3Interface(0x5fb1616F78dA7aFC9FF79e0371741a747D2a7F22);
-    UsdcContract = _UsdcContract;
+    UsdcContract = 0xec70714Fb3cf41Ab01894786b9DCaf97b75F5635;
     }
 
     //ADMIN START
