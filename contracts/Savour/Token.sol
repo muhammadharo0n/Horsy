@@ -36,10 +36,10 @@ contract TimeVillageToken is ERC20, ERC20Burnable, Pausable, Ownable,ReentrancyG
     enum currency{USDT, BNB}
 
 
-    constructor(address ownerAddress) ERC20("Time Village Token", "TVT") Ownable(ownerAddress){
+    constructor(address ownerAddress, address _UsdcContract) ERC20("Time Village Token", "TVT") Ownable(ownerAddress){
     _mint(msg.sender, 2500000000 * 10 ** decimals());
     // priceFeed = AggregatorV3Interface(0x5fb1616F78dA7aFC9FF79e0371741a747D2a7F22);
-    UsdcContract = 0xec70714Fb3cf41Ab01894786b9DCaf97b75F5635;
+    UsdcContract = _UsdcContract;
     }
 
     //ADMIN START
@@ -49,9 +49,11 @@ contract TimeVillageToken is ERC20, ERC20Burnable, Pausable, Ownable,ReentrancyG
     }
 
     // END
+    function listingTokens(uint duration, uint amount) public { 
 
-    function buyTokens(uint256 _amount,   currency choice) public nonReentrant {
-        // (, int256 answer, , , ) = priceFeed.latestRoundData();
+    }
+    function buyTokens(uint256 price,   currency choice) public nonReentrant {
+        require(_currencyCoice[choice]==1 || _currencyCoice[choice]==0, "Payment should be in USDT or BNB");
         uint256 currencyinUSDT = 285;
         uint currencyinBNB = 317;
         uint cost;
@@ -59,16 +61,16 @@ contract TimeVillageToken is ERC20, ERC20Burnable, Pausable, Ownable,ReentrancyG
         _currencyCoice[currency.BNB] = 1;
         numberOfTransactions.increment();
         if(_currencyCoice[choice] ==  0){ 
-            cost  = (_amount* currencyinUSDT);
+            cost  = (price/currencyinUSDT);
         }
 
         if(_currencyCoice[choice] ==  1){ 
-            cost  = (_amount* currencyinBNB);
+            cost  = (price/currencyinBNB);
         }
         NumberOfBuying[msg.sender]++;
         uint currentTransactionCount = NumberOfBuying[msg.sender];
-        TokenRecord[msg.sender][currentTransactionCount] = userRecord(msg.sender, _amount, currencyinUSDT, cost, true, choice);
-        IERC20(address(this)).transfer(msg.sender,_amount);
+        TokenRecord[msg.sender][currentTransactionCount] = userRecord(msg.sender, price, currencyinUSDT, cost, true, choice);
+        IERC20(address(this)).transfer(msg.sender,price);
         IERC20(UsdcContract).safeTransferFrom(msg.sender, owner() ,cost);
 
     }
