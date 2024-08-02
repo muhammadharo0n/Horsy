@@ -122,13 +122,16 @@ contract Marketplace is ReentrancyGuard , Ownable{
 
     // Contains information about a listed NFT in the auction, including its data and listing count.
     struct ListTokenId {
+        address newOwner;
         nftAuction listedData;   // The auction data for the listed NFT.
         uint listCount;          // A count that could represent the number of times listed or an ID.
         string uriData;          // URI for the NFT metadata.
+        
     }
 
     // Similar to `ListTokenId` but specifically for NFTs listed for direct sale.
     struct ListedNftTokenId {
+        address newOwner;
         NFT listedData;          // The direct sale listing data for the NFT.
         uint listCount;          // A count or ID similar to `ListTokenId`.
         string uriData;          // URI for the NFT metadata.
@@ -316,6 +319,7 @@ contract Marketplace is ReentrancyGuard , Ownable{
         _nftCount.decrement();
         userBuyRecord[msg.sender]++;
         userSoldRecord[_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].seller]++;
+        auctionOfferListAgain(NftAuction[auctionListCount[listIndex].contractAddress][auctionListCount[listIndex].tokenId].tokenId);
         emit Fee(_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].artist,artistFee);
         emit NFTSold(_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].tokenId, _idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].seller, msg.sender, msg.value,block.timestamp);
     }
@@ -364,6 +368,7 @@ contract Marketplace is ReentrancyGuard , Ownable{
         emit NFTCancel(_idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].tokenId, _idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].seller, msg.sender, _idToNFT[listCount[listIndex].contractAddress][listCount[listIndex].tokenId].price);
     }
 
+
     /**
     * @dev Lists an NFT for auction on the marketplace.
     *
@@ -409,11 +414,15 @@ contract Marketplace is ReentrancyGuard , Ownable{
         NftAuction[auctionListCount[_tokenId].contractAddress][auctionListCount[_tokenId].tokenId].minimumBid = 0;
         NftAuction[auctionListCount[_tokenId].contractAddress][auctionListCount[_tokenId].tokenId].artistFeePerAge;
         if(_idToNFT[listCount[_tokenId].contractAddress][listCount[_tokenId].tokenId].listed){
-            _idToNFT[listCount[_tokenId].contractAddress][listCount[_tokenId].tokenId].listed=false;
-            IConnected(listCount[_tokenId].contractAddress).update_TokenIdTime(listCount[_tokenId].tokenId);
-            _idToNFT[listCount[_nftCount.current()].contractAddress][listCount[_nftCount.current()].tokenId].count = _tokenId;
-            listCount[_tokenId] = listCount[_nftCount.current()];
-            _nftCount.decrement();
+           _idToNFT[listCount[_tokenId].contractAddress][listCount[_tokenId].tokenId].listed=false;
+        IConnected(listCount[_tokenId].contractAddress).update_TokenIdTime(listCount[_tokenId].tokenId);
+        // _idToNFT[listCount[_nftCount.current()].contractAddress][listCount[_nftCount.current()].tokenId].count = _tokenId;
+        // NftAuction[auctionListCount[_tokenId].contractAddress][auctionListCount[_tokenId].tokenId].owner = msg.sender;
+        listCount[_tokenId] = listCount[_nftCount.current()];
+        _nftCount.decrement();
+        // userBuyRecord[msg.sender]++;
+        // userSoldRecord[_idToNFT[listCount[_tokenId].contractAddress][listCount[_tokenId].tokenId].seller]++;
+
             }
     }
 
@@ -539,13 +548,19 @@ contract Marketplace is ReentrancyGuard , Ownable{
         IConnected(auctionListCount[_auctionListCount].contractAddress).updateTokenId(msg.sender,auctionListCount[_auctionListCount].tokenId,NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].owner);
         NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].isActive = true;
         IConnected(auctionListCount[_auctionListCount].contractAddress).update_TokenIdTime(auctionListCount[_auctionListCount].tokenId);
+       _idToNFT[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].listed = false;
+
+        
         // auctionListCount[_auctionListCount] = auctionListCount[nftAuctionCount.current()];       
         // userBidsCount[_auctionListCount] = userBidsCount[nftAuctionCount.current()];
         delete SelectedUser[_auctionListCount];
         // delete auctionListCount[nftAuctionCount.current()];
         delete userBidsCount[nftAuctionCount.current()];
         // nftAuctionCount.decrement();
-        auctionOfferListAgain(NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].tokenId);
+        // _nftCount.decrement();
+        // auctionOfferListAgain(NftAuction[auctionListCount[_auctionListCount].contractAddress][auctionListCount[_auctionListCount].tokenId].tokenId);
+        userBidsCount[_auctionListCount] = 0;
+
 
        
     }
@@ -658,36 +673,58 @@ contract Marketplace is ReentrancyGuard , Ownable{
     * 2. Iterates over each listing and auction, adding their details to the respective arrays.
     * 3. Returns the two arrays, one for direct sale listings and the other for auctions.
     */
-    function getAllListedNfts() public view returns (ListedNftTokenId[] memory,ListTokenId[] memory) {
-        uint listNft = (_nftCount.current());
-        ListedNftTokenId[] memory listedNFT = new ListedNftTokenId[](listNft);
-        uint listedIndex = 0;
-        for (uint i = 1; i <= _nftCount.current() ; i++) {
-            if (_idToNFT[listCount[i].contractAddress][listCount[i].tokenId].listed) {
-                listedNFT[listedIndex] = ListedNftTokenId(_idToNFT[listCount[i].contractAddress][listCount[i].tokenId],i,IConnected(listCount[i].contractAddress).getTokenUri(listCount[i].tokenId));
-                listedIndex++;
-            }
+    function getAllListedNfts() public view returns (ListedNftTokenId[] memory, ListTokenId[] memory) {
+    uint listNftCount = _nftCount.current();
+    uint auctionNftCount = nftAuctionCount.current();
+    
+    // First, count the actual number of listed NFTs
+    uint listedCount = 0;
+    for (uint i = 1; i <= listNftCount; i++) {
+        if (_idToNFT[listCount[i].contractAddress][listCount[i].tokenId].listed) {
+            listedCount++;
         }
-        listNft = (nftAuctionCount.current());
-        ListTokenId[] memory auctionListNFT = new ListTokenId[](listNft);
-        uint listedIndexCount = 0;
-        for (uint i = 1; i <= nftAuctionCount.current() ; i++) {
-            if (NftAuction[auctionListCount[i].contractAddress][auctionListCount[i].tokenId].isActive) {
-                auctionListNFT[listedIndexCount] = ListTokenId(NftAuction[auctionListCount[i].contractAddress][auctionListCount[i].tokenId],i,IConnected(auctionListCount[i].contractAddress).getTokenUri(auctionListCount[i].tokenId));
-                listedIndexCount++;
-            }
+    }
+    
+    // Allocate the exact size for the listed NFTs array
+    ListedNftTokenId[] memory listedNFT = new ListedNftTokenId[](listedCount);
+    uint listedIndex = 0;
+    for (uint i = 1; i <= listNftCount; i++) {
+        if (_idToNFT[listCount[i].contractAddress][listCount[i].tokenId].listed) {
+            listedNFT[listedIndex] = ListedNftTokenId(ERC721(listCount[i].contractAddress).ownerOf(listCount[i].tokenId),
+                _idToNFT[listCount[i].contractAddress][listCount[i].tokenId],
+                i,
+                IConnected(listCount[i].contractAddress).getTokenUri(listCount[i].tokenId)
+            );
+            listedIndex++;
         }
-        return (listedNFT,auctionListNFT);
     }
-    /**
-    * @dev Sets the address to receive buyer fees from NFT sales.
-    * Can only be called by the contract owner.
-    *
-    * @param _address The address to which buyer fees will be sent.
-    */
-    function setBuyerFeeAddress(address _address) public onlyOwner{
-        buyerFee = _address;
+    
+    // First, count the actual number of auctioned NFTs
+    uint auctionCount = 0;
+    for (uint i = 1; i <= auctionNftCount; i++) {
+        if (NftAuction[auctionListCount[i].contractAddress][auctionListCount[i].tokenId].isActive) {
+            auctionCount++;
+        }
     }
+    
+    // Allocate the exact size for the auctioned NFTs array
+    ListTokenId[] memory auctionListNFT = new ListTokenId[](auctionCount);
+    uint auctionIndex = 0;
+    for (uint i = 1; i <= auctionNftCount; i++) {
+        if (NftAuction[auctionListCount[i].contractAddress][auctionListCount[i].tokenId].isActive) {
+            
+            auctionListNFT[auctionIndex] = ListTokenId(ERC721(auctionListCount[i].contractAddress).ownerOf(auctionListCount[i].tokenId),
+                NftAuction[auctionListCount[i].contractAddress][auctionListCount[i].tokenId],
+                i,
+                IConnected(auctionListCount[i].contractAddress).getTokenUri(auctionListCount[i].tokenId)
+            );
+            auctionIndex++;
+        }
+    }
+    
+    return (listedNFT, auctionListNFT);
+}
+
 
     /**
     * @dev Sets the address to receive seller fees from NFT sales.
